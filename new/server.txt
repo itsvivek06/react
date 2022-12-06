@@ -1,0 +1,100 @@
+-----Server---
+
+server.js
+
+const mongoose = require('mongoose')
+const express = require('express')
+const cors = require('cors')
+
+const route = require('./route/mukuroute')
+const app = express()
+app.use(express.json())
+app.use(cors())
+mongoose.connect("mongodb://localhost:27017/muku")
+app.use('/api',route)
+app.listen(5000,()=>{
+    console.log("server is running...")
+})
+
+
+----route.js
+
+const express = require('express')
+
+const route = express.Router()
+const mukumodel = require('../model/muku_model')
+const regmodel = require('../model/reg')
+
+route.post('/ins',async(req,res)=>{
+    const insmuku = new mukumodel({
+        name:req.body.name,
+        location:req.body.location
+    });
+    insmuku.save();
+})
+
+route.get('/disp',async(req,res)=>{
+    const mukudata = await mukumodel.find()
+    res.send(mukudata)
+})
+
+route.post('/regins',(req,res)=>{
+    const reg = new regmodel({
+        name:req.body.name,
+        age:req.body.age,
+        hotelid:req.body.hotelid,
+        mob:req.body.mob
+    });
+    reg.save();
+})
+
+route.get('/regdisp',async(req,res)=>{
+    const regdata = await regmodel.find()
+    res.send(regdata)
+})
+
+route.delete('/regdel/:id',async(req,res)=>{
+    const regdet=await regmodel.findByIdAndDelete(req.params.id)
+    console.log(regdet);
+})
+
+route.get('/gethotel/:id',async(req,res)=>{
+    const hotelname=await mukumodel.findById(req.params.id).select('name')
+    res.send(hotelname);
+})
+
+module.exports = route;
+
+----test.rest
+
+POST http://localhost:5000/api/ins
+content-type: application/json
+
+{
+    "name": "Testy Garden",
+    "location":"urat"
+}
+
+###
+GET http://localhost:5000/api/disp
+
+###
+POST http://localhost:5000/api/regins
+content-type: application/json
+
+{
+    "name": "Rahul",
+    "age":21,
+    "hotelid":"638f296d4baf2bd87b807ca5",
+    "mob":76543456
+}
+
+###
+GET http://localhost:5000/api/regdisp
+
+###
+GET http://localhost:5000/api/gethotel/638f3cbd5097f4cba12684b3
+
+
+###
+DELETE  http://localhost:5000/api/regdel/638f36b32549d3d7ca921cf4

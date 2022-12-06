@@ -1,0 +1,150 @@
+--Display.js [Component]
+
+import axios from 'axios'
+import React, { useEffect, useState } from 'react'
+
+const Display = () => {
+    const [dispdata, setdispdata] = useState([])
+    const disp = async () => {
+        const record = await axios.get('http://localhost:5000/api/regdisp')
+        //console.log(record.data);
+        setdispdata(record.data)
+    }
+
+    useEffect(() => {
+        disp();
+    }, [dispdata])
+    return (
+        <div>
+            <table className='table'>
+                <thead>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Mobile Number</th>
+                </thead>
+                <tbody>
+                    {
+                        dispdata.map((d) => {
+                            return (
+                                <tr>
+                                    <td>{d.name}</td> 
+                                    <td>{d.hotelid}</td>
+                                    <td>{d.age}</td>
+                                    <td>{d.mob}</td>
+                                </tr>
+                            )
+                        })
+                    }
+                </tbody>
+            </table>
+        </div>
+    )
+}
+
+export default Display
+
+--index.js
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <BrowserRouter>
+
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+);
+
+---header.js[Component]
+
+import React from 'react'
+import { NavLink } from 'react-router-dom';
+const Header = () => {
+  return (
+    <div>
+    <NavLink to='/book' >BOOK NOW</NavLink>
+    <NavLink to='/disp' >Display</NavLink>
+    </div>
+  )
+}
+
+export default Header
+
+
+--app.js
+
+
+import './App.css'
+import Display from './comp/Display';
+import Hotel from './comp/Hotel';
+import {  Route,Routes } from 'react-router-dom';
+import Header from './comp/Header';
+function App() {
+  return (
+    <>
+    <Header/>
+      <Routes>
+        <Route path='/book' element={<Hotel />} />
+        <Route path='/disp' element={<Display />} />
+      </Routes>
+      
+    </>
+  );
+}
+
+export default App;
+
+--hotel.js [insert page] Component
+
+import axios from 'axios';
+import React from 'react'
+import { useEffect } from 'react';
+import { useState } from 'react'
+
+const Hotel = () => {
+    const [regdata, setregdata] = useState({
+        name: '',
+        age: '',
+        hotelid: '',
+        mob: ''
+    })
+    const [data, setdata] = useState([]);
+    const pageload = async () => {
+        const rec = await axios.get('http://localhost:5000/api/disp')
+        setdata(rec.data)
+        // console.log(rec.data);
+    }
+    useEffect(() => {
+        pageload();
+    }, [data])
+
+    const regins = async () => {
+        const {name,age,hotelid,mob}=regdata;
+        const regidata = axios.post('http://localhost:5000/api/regins',
+            {
+                name,
+                age,
+                hotelid,
+                mob
+            }
+        )
+        alert('inserted')
+    }
+    return (
+        <div>
+            name:<input type="text" onChange={(e) => setregdata({ ...regdata, name: e.target.value })}></input><br></br>
+            age:<input type="number" onChange={(e) => setregdata({ ...regdata, age: e.target.value })}></input><br></br>
+            <select onChange={(e) => setregdata({ ...regdata, hotelid: e.target.value })}>
+                {data.map((d) => {
+                    return (
+                        <option value={d._id}>{d.name}</option>
+                    )
+                })}
+            </select><br></br>
+            mobile no:<input type="number" onChange={(e) => setregdata({ ...regdata, mob: e.target.value })}></input><br></br>
+            <button onClick={regins}>Submit</button>
+        </div>
+    )
+}
+export default Hotel
+
