@@ -1,0 +1,39 @@
+--reg.js
+
+const mongoose = require('mongoose')
+
+const regmodel = mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    age: {
+        type: Number,
+        required:true
+    },
+    hotelid: {
+        type: String,
+        required: true
+    },
+    mob:{
+        type:Number,
+        required:true
+    }
+})
+module.exports = mongoose.model('reghotel', regmodel)
+
+--muku_model.js
+
+const mongoose = require('mongoose')
+
+const mukumodel = mongoose.Schema({
+    name:{
+        type:String,
+        required:true
+    },
+    location:{
+        type:String,
+        required:true  
+    }
+})
+module.exports = mongoose.model('hotel',mukumodel)
